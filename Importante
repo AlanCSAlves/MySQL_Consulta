@@ -3,14 +3,14 @@
 Bancos de dados geralmente costumam utilizar data no formato: AAAA-MM-DD (ano, mês e dia)
 Separadores de decimais são "." ao invés de ","
 
-Ordem de inserção dos comandos: Execução - Filtro - Agrupamento - Ordenação - Limite
+Ordem de inserção dos comandos: Execução - Filtro - Agregação - Ordenação - Limite
 
 Sendo:
 
 Execução: 
-SELECT 
+select 
     Created_At,Id as CodPro, title as Titulo, category as Categoria, Price as Preço, Rating as Avaliacao  (Colunas com o "as" para renomear) 
-FROM Products (Tabela em questão)
+from Products (Tabela em questão)
 
 Filtro:
 where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
@@ -28,6 +28,21 @@ and / or - "E" e "OU"
 Em datas, necessário colocar um valor maior para englobar o período desejado.
 Ex: Created_At between "2019-02-07" and "2019-04-12"
     Esse parametro não traria o valor "2019-04-12", seria necessário alterar para "2019-04-13"
+
+Agregação:
+select 
+    Category as Categoria,count(*) as "Qtdade de Produtos" 
+from Products
+group by Category
+order by "Qtdade de Produtos"
+    Basta aplicar a execução de uma operação e em seguida inserir o parametro de agrupamento
+    Neste caso, o count() pode ser substituído pelo max(),  min(), sum(), avg(), entre outros agrupadores
+
+Distinct:
+select distinct State, Source from People (Seleciona somente os valores distintos das colunas citadas)
+order by State
+    É possível aplicar os agregadores e turbinar a conta, trazendo os resultados distintos de uma coluna.
+    Dependendo da fonte, pode não ser possível aplicar o Distinct em mais de uma coluna 
 
     
 Ordenação:
