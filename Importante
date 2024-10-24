@@ -1,0 +1,16 @@
+**Detalhes e Dicas Importantes!!**
+
+Bancos de dados geralmente costumam utilizar data no formato: AAAA-MM-DD (ano, mês e dia)
+Separadores de decimais são "." ao invés de ","
+
+Ordem de inserção dos comandos: Execução - Filtro - Agrupamento - Ordenação
+
+Sendo:
+
+Execução: 
+SELECT 
+    title as Titulo, category as Categoria (Colunas com o "as" para renomear) 
+FROM Products (Tabela em questão)
+
+
+order by Created_At asc
