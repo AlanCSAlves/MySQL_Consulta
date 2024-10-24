@@ -3,14 +3,36 @@
 Bancos de dados geralmente costumam utilizar data no formato: AAAA-MM-DD (ano, mês e dia)
 Separadores de decimais são "." ao invés de ","
 
-Ordem de inserção dos comandos: Execução - Filtro - Agrupamento - Ordenação
+Ordem de inserção dos comandos: Execução - Filtro - Agrupamento - Ordenação - Limite
 
 Sendo:
 
 Execução: 
 SELECT 
-    title as Titulo, category as Categoria (Colunas com o "as" para renomear) 
+    Created_At,Id as CodPro, title as Titulo, category as Categoria, Price as Preço, Rating as Avaliacao  (Colunas com o "as" para renomear) 
 FROM Products (Tabela em questão)
 
+Filtro:
+where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
+where rating != 4 and ID between 1 and 20 and Created_At between "2019-02-7" and "2019-04-12"
+where ID = 4 or ID between 1 and 20
+where category = "Gizmo" (Texto exatamente igual)
+    A coluna não precisa estar aparecendo para que seja feito o filtro
 
-order by Created_At asc
+Operadores Lógicos:
+and / or - "E" e "OU" 
+= - igual    -    != ou <> - diferente
+> - maior    -    < - menor
+>= - maior ou igual    -    <= - menor ou igual
+
+Em datas, necessário colocar um valor maior para englobar o período desejado.
+Ex: Created_At between "2019-02-07" and "2019-04-12"
+    Esse parametro não traria o valor "2019-04-12", seria necessário alterar para "2019-04-13"
+
+    
+Ordenação:
+order by Created_At asc (asc - ascending, desc - descending)
+    Para ordenar, podemos inserir o nome atual da coluna ou o nome antigo mesmo
+
+Limite:
+limit 10 - 15 - 20 (limita o número de linhas do material)
