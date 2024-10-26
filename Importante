@@ -25,6 +25,22 @@ Podemos trazer execuções com operações aritméticas, com seus respectivos re
         Tax / Subtotal as Taxa
     from Orders
 
+Outro exemplo:
+    select
+        Product_ID as ID_Produto, 
+        Subtotal,
+        Tax, 
+        Subtotal + Tax as Valor_Total,
+        Discount,
+        Discount / (Subtotal + Tax) * 100 as Percent_Disc,
+        Total
+    from Orders
+    order by Percent_Disc desc
+    limit 10
+
+Exemplos de diversos operadores: https://dev.mysql.com/doc/refman/8.4/en/arithmetic-functions.html
+Funções numéricas e operadores: https://dev.mysql.com/doc/refman/8.4/en/numeric-functions.html
+
 Filtro:
 where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
 where rating != 4 and ID between 1 and 20 and Created_At between "2019-02-7" and "2019-04-12"
