@@ -11,6 +11,19 @@ Execução:
 select 
     Created_At,Id as CodPro, title as Titulo, category as Categoria, Price as Preço, Rating as Avaliacao  (Colunas com o "as" para renomear) 
 from Products (Tabela em questão)
+Podemos trazer execuções com operações aritméticas, com seus respectivos resultados em colunas novas, por ex:
+    select
+        Id as ID_Pedido, 
+        User_ID as Cliente,
+        Product_ID as ID_Produto, 
+        Subtotal, 
+        Tax, 
+        Total, 
+        Discount, 
+        Subtotal + Tax AS Soma1, 
+        Subtotal + Tax - Discount AS Soma2,
+        Tax / Subtotal as Taxa
+    from Orders
 
 Filtro:
 where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
@@ -19,11 +32,13 @@ where ID = 4 or ID between 1 and 20
 where category = "Gizmo" (Texto exatamente igual)
     A coluna não precisa estar aparecendo para que seja feito o filtro
 
-Operadores Lógicos:
+Principais Operadores Lógicos:
 and / or - "E" e "OU" 
 = - igual    -    != ou <> - diferente
 > - maior    -    < - menor
 >= - maior ou igual    -    <= - menor ou igual
+
+Mais operadores: https://dev.mysql.com/doc/refman/8.4/en/non-typed-operators.html
 
 Em datas, necessário colocar um valor maior para englobar o período desejado.
 Ex: Created_At between "2019-02-07" and "2019-04-12"
@@ -31,12 +46,45 @@ Ex: Created_At between "2019-02-07" and "2019-04-12"
 
 Agregação:
 select 
-    Category as Categoria,count(*) as "Qtdade de Produtos" 
+    Category as Categoria,
+    count(*) as "Qtdade de Produtos" 
 from Products
 group by Category
 order by "Qtdade de Produtos"
     Basta aplicar a execução de uma operação e em seguida inserir o parametro de agrupamento
-    Neste caso, o count() pode ser substituído pelo max(),  min(), sum(), avg(), entre outros agrupadores
+    Importante trazer a coluna que se deseja fazer a agregação na etapa de EXECUÇÃO para que apareça o resumo
+    É possível fazer multiplas agregações, como por ex:
+
+    select
+        State,
+        Source,
+        count(*) as Qtde
+    from People
+    where ID <= 100
+    group by State, source
+    order by State, source
+
+As principais funções de agregação são:
+    AVG(): Retorna a média dos valores.
+    SUM(): Retorna a soma dos valores.
+    MAX(): Retorna o maior valor.
+    MIN(): Retorna o menor valor.
+    COUNT(): Retorna a quantidade de linhas.
+    COUNT(DISTINCT): Retorna a quantidade de valores distintos.
+    STD(): Retorna o desvio padrão dos valores.
+
+As demais podem ser vistas na documentação: https://dev.mysql.com/doc/refman/8.4/en/aggregate-functions.html
+
+Podemos fazer diversas agregações de uma só vez, por ex:
+    select
+        Category as Categoria,
+        min (Rating) as Nota_Min,
+        max (Rating) as Nota_Max,
+        avg (Rating) as Nota_Med,
+        stddev(Rating) as Desv_Pad
+    from Products
+    group by Categoria
+    order by Nota_Max
 
 Distinct:
 select distinct State, Source from People (Seleciona somente os valores distintos das colunas citadas)
