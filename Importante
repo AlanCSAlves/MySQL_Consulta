@@ -131,11 +131,26 @@ limit 10 - 15 - 20 (limita o número de linhas do material)
 Join - junção entre tabelas
 
 Conexões são possíveis somente entre tabelas que possuem chaves que se comunicam (Primary_Keys e Foreign_Keys)
+Sendo os principais tipos:
+    Left Join - Traz tudo da tabela primária e somente a correspondencia da tabela secundária - Tipo PROCV
+    Right Join - Reverte a primária, trazendo a correspondencia da tabela secundária
+    Inner Join - Traz somente o que se corresponde nas 2 tabelas
+    Full Join - Traz tudo das 2 tabelas, mesmo que não hajam correspondencias
+    Cross Join - Repete todas as linhas da Tabela 1 para cada linha da tabela 2
+
 Expressão geral:
     Select select_expression From table_1
     Join table_2 on table_1.key = table_2.key
 
-Exemplo utilizando o Left Join (Traz tudo da tabela primária e somente a correspondencia da tabela secundária - Tipo PROCV)
+Full Join:
+    Select select_expression From table_1
+    Full Join table_2 on table_1.key = table_2.key
+
+Cross Join:
+    Select select_expression From table_1
+    Cross Join table_2
+
+Exemplo utilizando o Left Join
     select
         Products.Id as Product_ID, Title, Category,Price,
         Reviews.Id as Review_ID, Product_ID, Reviewer, Body
@@ -160,7 +175,23 @@ Aplicando agregadores a este fator:
     group by Category
     order by Contagem_DistID desc
 
- 
+Joins subsequentes - Linkando multiplas tabelas:
+    Select select_expression From table_1
+    Join table_2 on table_1.key = table_2.key
+    Join table_3 on table_2.key = table_3.key
+    Join table_4 on table_3.key = table_4.key
+
+Exemplo - Cálculo da Média de Rating por estado:
+    select 
+        State,
+        avg(Rating) as Media
+    from Orders (tabela contendo as informações de Produtos e User ID)
+    left join Products on Orders.Product_Id = Products.ID (Products contém as info de Rating - Avaliação)
+    left join People on Orders.User_ID = People.ID (People contém as info de State - Estado)
+    group by State
+    order by Media desc
+
+O ideal é ter uma linha principal de análise e, a partir dela, conectar as informações que precisamos
 
 
     
