@@ -3,14 +3,20 @@
 Bancos de dados geralmente costumam utilizar data no formato: AAAA-MM-DD (ano, mês e dia)
 Separadores de decimais são "." ao invés de ","
 
-Ordem de inserção dos comandos: Execução - Filtro - Agregação - Ordenação - Limite
+Ordem de inserção dos comandos: Execução (Join se necessário) - Filtro - Agregação - Ordenação - Limite
 
 Sendo:
 
 Execução: 
-select 
-    Created_At,Id as CodPro, title as Titulo, category as Categoria, Price as Preço, Rating as Avaliacao  (Colunas com o "as" para renomear) 
-from Products (Tabela em questão)
+    select 
+        Created_At as Data_Criacao, (Colunas com o "as" para renomear)
+        Id as CodPro, 
+        Title as Titulo, 
+        Category as Categoria, 
+        Price as Preço, 
+        Rating as Avaliacao   
+    from Products (Tabela em questão)
+
 Podemos trazer execuções com operações aritméticas, com seus respectivos resultados em colunas novas, por ex:
     select
         Id as ID_Pedido, 
@@ -42,35 +48,37 @@ Exemplos de diversos operadores: https://dev.mysql.com/doc/refman/8.4/en/arithme
 Funções numéricas e operadores: https://dev.mysql.com/doc/refman/8.4/en/numeric-functions.html
 
 Filtro:
-where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
-where rating != 4 and ID between 1 and 20 and Created_At between "2019-02-7" and "2019-04-12"
-where ID = 4 or ID between 1 and 20
-where category = "Gizmo" (Texto exatamente igual)
-    A coluna não precisa estar aparecendo para que seja feito o filtro
+    where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
+    where rating != 4 and ID between 1 and 20 and Created_At between "2019-02-7" and "2019-04-12"
+    where ID = 4 or ID between 1 and 20
+    where category = "Gizmo" (Texto exatamente igual)
+        A coluna não precisa estar aparecendo para que seja feito o filtro
 
 Principais Operadores Lógicos:
-and / or - "E" e "OU" 
-= - igual    -    != ou <> - diferente
-> - maior    -    < - menor
->= - maior ou igual    -    <= - menor ou igual
+    and / or - "E" e "OU" 
+    = - igual    -    != ou <> - diferente
+    > - maior    -    < - menor
+    >= - maior ou igual    -    <= - menor ou igual
 
 Mais operadores: https://dev.mysql.com/doc/refman/8.4/en/non-typed-operators.html
 
 Em datas, necessário colocar um valor maior para englobar o período desejado.
 Ex: Created_At between "2019-02-07" and "2019-04-12"
-    Esse parametro não traria o valor "2019-04-12", seria necessário alterar para "2019-04-13"
+Esse parametro não traria o valor "2019-04-12", seria necessário alterar para "2019-04-13"
+
+Antes dos Filtros, o SQL não entederá as colunas renomeadas, de modo que pode dar erro ao chama-las. Devemos utilizar o nome original.
 
 Agregação:
-select 
-    Category as Categoria,
-    count(*) as "Qtdade de Produtos" 
-from Products
-group by Category
-order by "Qtdade de Produtos"
-    Basta aplicar a execução de uma operação e em seguida inserir o parametro de agrupamento
-    Importante trazer a coluna que se deseja fazer a agregação na etapa de EXECUÇÃO para que apareça o resumo
-    É possível fazer multiplas agregações, como por ex:
+    select 
+        Category as Categoria,
+        count(*) as "Qtdade de Produtos" 
+    from Products
+    group by Category
+    order by "Qtdade de Produtos"
 
+Basta aplicar a execução de uma operação e em seguida inserir o parametro de agrupamento
+Importante trazer a coluna que se deseja fazer a agregação na etapa de EXECUÇÃO para que apareça o resumo
+É possível fazer multiplas agregações, como por ex:
     select
         State,
         Source,
@@ -103,15 +111,57 @@ Podemos fazer diversas agregações de uma só vez, por ex:
     order by Nota_Max
 
 Distinct:
-select distinct State, Source from People (Seleciona somente os valores distintos das colunas citadas)
-order by State
-    É possível aplicar os agregadores e turbinar a conta, trazendo os resultados distintos de uma coluna.
-    Dependendo da fonte, pode não ser possível aplicar o Distinct em mais de uma coluna 
+    select 
+        distinct State, 
+        Source 
+    from People (Seleciona somente os valores distintos das colunas citadas)
+    order by State
 
+É possível aplicar os agregadores e turbinar a conta, trazendo os resultados distintos de uma coluna.
+Dependendo da fonte, pode não ser possível aplicar o Distinct em mais de uma coluna 
     
 Ordenação:
-order by Created_At asc (asc - ascending, desc - descending)
-    Para ordenar, podemos inserir o nome atual da coluna ou o nome antigo mesmo
+    order by Created_At asc (asc - ascending, desc - descending)
+
+Para ordenar, podemos inserir o nome atual da coluna ou o nome antigo mesmo
 
 Limite:
 limit 10 - 15 - 20 (limita o número de linhas do material)
+
+Join - junção entre tabelas
+
+Conexões são possíveis somente entre tabelas que possuem chaves que se comunicam (Primary_Keys e Foreign_Keys)
+Expressão geral:
+    Select select_expression From table_1
+    Join table_2 on table_1.key = table_2.key
+
+Exemplo utilizando o Left Join (Traz tudo da tabela primária e somente a correspondencia da tabela secundária - Tipo PROCV)
+    select
+        Products.Id as Product_ID, Title, Category,Price,
+        Reviews.Id as Review_ID, Product_ID, Reviewer, Body
+    from Products
+    left join Reviews on Products.ID = Reviews.Product_ID   
+    where Reviews.Id is null
+
+Neste caso, o foco é saber quais produtos possuem análise (reviews), mas também podemos aplicar o fator reverso e analisar somente os produtos que possuem review:
+    select
+        *
+    from Reviews
+    left join Products on Reviews.Product_ID = Products.ID 
+
+Colunas com o mesmo nome pode conflitar, o ideal é renomear para um título mais amigável
+Aplicando agregadores a este fator:
+    select
+        count(distinct Products.ID) as Contagem_DistID, 
+        Category
+    from Reviews
+    left join Products on Reviews.Product_ID = Products.ID 
+    where Category is not null
+    group by Category
+    order by Contagem_DistID desc
+
+ 
+
+
+    
+
