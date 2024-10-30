@@ -55,18 +55,78 @@ Filtro:
         A coluna não precisa estar aparecendo para que seja feito o filtro
 
 Principais Operadores Lógicos:
-    and / or - "E" e "OU" 
+    and / or - "E" e "OU"
+    in() - Nas determinadas condições
+    Not - Negação, o Contrário
+    
+    Like - Similaridade, combinando com o % podemos ser mais específicos, por ex:
+    select
+    *
+    from Products
+    where 
+    Category not in ("Gizmo", "Widget")
+    and title like "Plastic%" - Que contenha a palvra Plastic no começo
+    and title like "%Plastic%" - Que contenha a palvra Plastic no meio
+    and title like "%Plastic" - Que contenha a palvra Plastic no fim
+    and title like "%Plastic%Watch" - Combinando palavras
+
+Podemos aplicar a negação em vários parametros:
+    Not In()
+    Not Like
+
+Podemos colocar parentesis no filtro and para que o SQL respeite a hierarquia dos filtros 
+
+Principais Operadores de Comparação:
     = - igual    -    != ou <> - diferente
     > - maior    -    < - menor
     >= - maior ou igual    -    <= - menor ou igual
 
 Mais operadores: https://dev.mysql.com/doc/refman/8.4/en/non-typed-operators.html
 
-Em datas, necessário colocar um valor maior para englobar o período desejado.
-Ex: Created_At between "2019-02-07" and "2019-04-12"
-Esse parametro não traria o valor "2019-04-12", seria necessário alterar para "2019-04-13"
-
 Antes dos Filtros, o SQL não entederá as colunas renomeadas, de modo que pode dar erro ao chama-las. Devemos utilizar o nome original.
+
+Aplicação de algumas funções de texto:
+select
+    Id,
+    Title,
+    Category,
+    Lower(Title) as "CaixaBaixa",
+    Upper(Title) as "CaixaAlta",
+    Concat(Title,"|",Category) as "ConcatenandoTexto",
+    Replace(Title,' ', '') as "SubstituindoValores"
+from Products
+
+Aplicação de algumas funções de Data:
+    select
+        ID,
+        Title,
+        Created_At,
+        Cast(Created_At as date) as Data, - função Cast muda a tipagem de dado da coluna
+        Cast(Created_At as datetime) as DataHora,
+        Day(Created_At) as DiadaData,
+        Dayofweek(Created_At)DiadaSemana,
+        DayofYear(Created_At)DiadaSemana,
+        Month(Created_At) as Mes,
+        Year(Created_At) as Ano,
+        Now() as DiaAtual,
+        Cast(concat("2024", "/","10","/","29") as date) as CriandoData,
+        DateDiff(NOW(),Created_At) as DiferençaData
+    from Products
+
+Aplicando algumas funções de número:
+    select
+        ID,
+        subtotal,
+        Discount,
+        Ceiling(subtotal),
+        Floor(subtotal),
+        Round(subtotal, 0), 
+        coalesce(Discount,0),
+        ifnull(Discount,subtotal*0.01), 
+        cast(subtotal as char)
+    from Orders
+
+Documentação com diversas funções de data: https://dev.mysql.com/doc/refman/8.4/en/date-and-time-functions.html#function_date-add
 
 Agregação:
     select 
