@@ -253,6 +253,38 @@ Exemplo - Cálculo da Média de Rating por estado:
 
 O ideal é ter uma linha principal de análise e, a partir dela, conectar as informações que precisamos
 
+Declarando variáveis dentro do SQL:
+{{Input_Variavel}} - Abre um campo onde o usuário pode inserir a variável que ele deseja
 
-    
+Pode ser extremamente útil se usarmos com o parametro de filtro (WHERE):
+    select
+        *
+    from Products
+    where
+        ID = {{input_ID}}
+    [[ or Price >= {{Input_Preco}}
+     or lower(Category) = lower({{Input_Categoria}}) - é possível moldar o texto do input (SQL exige Texto Exato)
+     or Created_At >= {{Input_Data}}
+     or Created_At between {{data_ini}} and {{data_fim}} ]]
 
+[[]] - Colchetes delimitam se o filtro será obrigatório ou não
+
+Filtro único
+    [[where ID = {{input_ID}}]]
+
+Filtro multiplo
+      where ID = {{input_ID}}          - obrigatório
+    [[ and Price >= {{input_Preço}}]]  - não obrigatório
+
+Criando uma caixinha de seleção de valores:
+    select
+        *
+    from Products
+    where true - ao inserir essa chave, todos os filtros serão opcionais
+    [[and {{input_id}}]]
+    [[and {{input_Categoria}}]]
+    [[and {{input_Data}}]]
+    [[and {{input_Preco}}]]
+
+Podemos selecionar os Filtros de Campo e relacionar a coluna que queremos que ele traga a informação.
+Pode ser de todos os tipos como data, números, texto, etc.
