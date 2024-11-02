@@ -7,6 +7,8 @@ Ordem de inserção dos comandos: Execução (Join se necessário) - Filtro - Ag
 
 Sendo:
 
+_________________________________________________________________________________________________________________________________________
+
 Execução: 
     select 
         Created_At as Data_Criacao, (Colunas com o "as" para renomear)
@@ -47,7 +49,10 @@ Outro exemplo:
 Exemplos de diversos operadores: https://dev.mysql.com/doc/refman/8.4/en/arithmetic-functions.html
 Funções numéricas e operadores: https://dev.mysql.com/doc/refman/8.4/en/numeric-functions.html
 
+_________________________________________________________________________________________________________________________________________
+
 Filtro:
+    where Month(Dia_Pedido) Between 1 and 2
     where ID >= 4 and ID between "10" and "20" (Inserir padrões desejados de busca)
     where rating != 4 and ID between 1 and 20 and Created_At between "2019-02-7" and "2019-04-12"
     where ID = 4 or ID between 1 and 20
@@ -84,8 +89,11 @@ Principais Operadores de Comparação:
 Mais operadores: https://dev.mysql.com/doc/refman/8.4/en/non-typed-operators.html
 
 Antes dos Filtros, o SQL não entederá as colunas renomeadas, de modo que pode dar erro ao chama-las. Devemos utilizar o nome original.
+Não há como filtrar valores específicos dentro do WHERE sem antes criar uma CTE, exemplos la em baixo:
 
-Aplicação de algumas funções de texto:
+Complementando os filtros, podemos aplicar algumas funções que facilitem a extração das informações das tabelas:
+
+Funções de texto:
 select
     Id,
     Title,
@@ -96,7 +104,7 @@ select
     Replace(Title,' ', '') as "SubstituindoValores"
 from Products
 
-Aplicação de algumas funções de Data:
+Funções de Data:
     select
         ID,
         Title,
@@ -113,7 +121,7 @@ Aplicação de algumas funções de Data:
         DateDiff(NOW(),Created_At) as DiferençaData
     from Products
 
-Aplicando algumas funções de número:
+Funções de número:
     select
         ID,
         subtotal,
@@ -127,6 +135,8 @@ Aplicando algumas funções de número:
     from Orders
 
 Documentação com diversas funções de data: https://dev.mysql.com/doc/refman/8.4/en/date-and-time-functions.html#function_date-add
+
+_________________________________________________________________________________________________________________________________________
 
 Agregação:
     select 
@@ -179,7 +189,9 @@ Distinct:
 
 É possível aplicar os agregadores e turbinar a conta, trazendo os resultados distintos de uma coluna.
 Dependendo da fonte, pode não ser possível aplicar o Distinct em mais de uma coluna 
-    
+
+_________________________________________________________________________________________________________________________________________
+
 Ordenação:
     order by Created_At asc (asc - ascending, desc - descending)
 
@@ -188,8 +200,11 @@ Para ordenar, podemos inserir o nome atual da coluna ou o nome antigo mesmo
 Limite:
 limit 10 - 15 - 20 (limita o número de linhas do material)
 
+_________________________________________________________________________________________________________________________________________
+
 Join - junção entre tabelas
 
+Devem ser aplicados na etapa de execução
 Conexões são possíveis somente entre tabelas que possuem chaves que se comunicam (Primary_Keys e Foreign_Keys)
 Sendo os principais tipos:
     Left Join - Traz tudo da tabela primária e somente a correspondencia da tabela secundária - Tipo PROCV
@@ -253,6 +268,8 @@ Exemplo - Cálculo da Média de Rating por estado:
 
 O ideal é ter uma linha principal de análise e, a partir dela, conectar as informações que precisamos
 
+_________________________________________________________________________________________________________________________________________
+
 Declarando variáveis dentro do SQL:
 {{Input_Variavel}} - Abre um campo onde o usuário pode inserir a variável que ele deseja
 
@@ -280,7 +297,7 @@ Criando uma caixinha de seleção de valores:
     select
         *
     from Products
-    where true - ao inserir essa chave, todos os filtros serão opcionais
+    where true - ao inserir essa chave, todos os filtros serão opcionais. Ao não inserir nada, trará a tabela completa.
     [[and {{input_id}}]]
     [[and {{input_Categoria}}]]
     [[and {{input_Data}}]]
@@ -288,3 +305,158 @@ Criando uma caixinha de seleção de valores:
 
 Podemos selecionar os Filtros de Campo e relacionar a coluna que queremos que ele traga a informação.
 Pode ser de todos os tipos como data, números, texto, etc.
+
+_________________________________________________________________________________________________________________________________________
+
+Criando CTEs - Common Table Expressions
+
+Este conceito permite a criação de tabelas virtuais para facilitar as consultas, dentro de tabelas específicas.
+Exemplo:
+
+--Selecionando todos os pedidos de 2023
+
+With Pedidos2023 as (
+    select 
+        Id, USER_ID, PRODUCT_ID, SUBTOTAL, cast(CREATED_AT as date) as Dia 
+    from ORDERS
+    where
+        year(CREATED_AT) = 2023
+    Order by Dia
+)
+
+select * From Pedidos2023
+where month(Dia) = 1
+
+DETALHE IMPORTANTE !!! No MySQL, uma CTE criada com WITH precisa ser seguida por uma consulta principal que a utilize imediatamente; 
+do contrário, ele não processa a tabela virtual e gera erro.
+
+Ela é bem interessante, pois permite que façamos filtros mais específicos onde antes não podiamos aplicar o WHERE:
+
+With FaturamentoDia2023 as 
+(
+    select 
+        sum(SUBTOTAL) as Faturamento, 
+        cast(CREATED_AT as date) as Dia
+    from ORDERS
+    where
+        year(CREATED_AT) = 2023
+        group by dia
+    order by dia 
+)
+
+Select * from FaturamentoDia2023
+Where Faturamento >= 1000
+
+Na query acima, não seria possível filtrar o Faturamento sem a tabela virtual, daria ERRO.
+
+Para manter a consulta por mais tempo, temos algumas alternativas:
+
+VIEWS - Uma view é uma tabela virtual salva no banco de dados e pode ser reutilizada em várias consultas. 
+É como uma CTE, mas ela permanece disponível até que seja explicitamente deletada. Ex:
+    CREATE VIEW Pedidos2023 AS
+    SELECT Id, USER_ID, PRODUCT_ID, SUBTOTAL, CAST(CREATED_AT AS DATE) AS Dia
+    FROM ORDERS
+    WHERE YEAR(CREATED_AT) = 2023;
+
+TEMPORARY TABLES - Elas existem apenas durante a sessão atual do banco de dados e são excluídas automaticamente quando a sessão termina.
+Ex:
+    CREATE TEMPORARY TABLE Pedidos2023 AS
+    SELECT Id, USER_ID, PRODUCT_ID, SUBTOTAL, CAST(CREATED_AT AS DATE) AS Dia
+    FROM ORDERS
+    WHERE YEAR(CREATED_AT) = 2023;
+
+Ou até mesmo criar uma nova tabela, caso seja necessário preservar as informações por mais tempo:
+    CREATE TABLE Pedidos2023 AS
+    SELECT Id, USER_ID, PRODUCT_ID, SUBTOTAL, CAST(CREATED_AT AS DATE) AS Dia
+    FROM ORDERS
+    WHERE YEAR(CREATED_AT) = 2023;
+
+_________________________________________________________________________________________________________________________________________
+
+Juntando as CTEs com Joins
+
+--Selecionando todos os pedidos feitos em 2023 junto com os clientes criados. 
+
+With Pedidos2023 as 
+(
+    select 
+        cast(CREATED_AT as date) as Dia_Pedido,
+        Count(ID) as Pedidos_Feitos
+    from ORDERS
+    where
+        year(CREATED_AT) = 2023
+    group by Dia_Pedido
+    order by Dia_Pedido 
+), 
+
+-- Ao inserir a vírgula, podemos criar várias CTEs dentro de um mesmo WITH
+
+Clientes2023 as
+(
+    Select 
+        cast(CREATED_AT as date) as Dia_Cliente,
+        Count(ID) as Clientes_Cadastrados
+    From PEOPLE
+    where
+        year(CREATED_AT) = 2023
+    Group by Dia_Cliente
+    Order by Dia_Cliente
+)
+
+-- FIM das CTEs, sempre será necessário criar um SELECT das informações.
+
+Select 
+    Dia_Pedido as Dia,
+    Pedidos_Feitos as Pedidos_Feitos,
+    ifnull(Clientes_Cadastrados,0) as Clientes_Cadastrados
+from Pedidos2023
+left join Clientes2023 on Clientes2023.Dia_Cliente = Pedidos2023.Dia_Pedido
+
+--Join aplicado entre as CTEs com as Chaves comuns entre as 2
+
+where Month(Dia_Pedido) Between 1 and 2
+Group by Dia
+
+_________________________________________________________________________________________________________________________________________
+
+Juntando CTEs com UNION (tabela sob tabela)
+Neste caso, colocaremos uma consulta sobre a outra, de modo que criará uma consulta única com duas informações
+Para este caso é importante que as tabelas possuam um mesmo padrão de análise para que não hajam desencontros
+
+Agrupando dados de Filiais:
+
+-- Selecionando cada filial dentro de uma CTE e especificando o período e modo de análise
+With FilialNE as 
+(
+    select 
+        *
+    from PEOPLE
+    where
+        STATE = 'NE' and year(CREATED_AT) = 2023 
+),
+
+FilialMN as 
+(
+    select 
+        *
+    from PEOPLE
+    where
+        STATE = 'MN' and year(CREATED_AT) = 2023 
+),
+
+-- Abrindo uma 3ª CTE agrupando as 2 anteriores
+
+Filiais2023 as 
+(
+    select * from FilialNE
+    union
+    select * from FilialMN
+)
+
+-- Dessa forma é possível tratar as 2 de uma vez só
+
+Select 
+    State,
+    Count(ID)
+from Filiais2023
+group by STATE
