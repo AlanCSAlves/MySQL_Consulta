@@ -112,8 +112,8 @@ Funções de Data:
         Cast(Created_At as date) as Data, - função Cast muda a tipagem de dado da coluna
         Cast(Created_At as datetime) as DataHora,
         Day(Created_At) as DiadaData,
-        Dayofweek(Created_At)DiadaSemana,
-        DayofYear(Created_At)DiadaSemana,
+        Dayofweek(Created_At) as DiadaSemana,
+        DayofYear(Created_At) as DiadaSemana,
         Month(Created_At) as Mes,
         Year(Created_At) as Ano,
         Now() as DiaAtual,
@@ -148,6 +148,7 @@ Agregação:
 
 Basta aplicar a execução de uma operação e em seguida inserir o parametro de agrupamento
 Importante trazer a coluna que se deseja fazer a agregação na etapa de EXECUÇÃO para que apareça o resumo
+
 É possível fazer multiplas agregações, como por ex:
     select
         State,
