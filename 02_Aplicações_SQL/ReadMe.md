@@ -1,1 +1,1 @@
-# Aplicações visuais de SQL
+Exemplos de aplicações de SQL
